@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Kintsugi Fix: Service Recovery Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #2C3E50;
+            --secondary: #E67E22;
+            --gold: #F1C40F;
+            --glue: #95A5A6;
+            --bg: #ECF0F1;
+            --text: #333;
+            --success: #27AE60;
+            --danger: #E74C3C;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .theory-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--gold);
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+            text-align: left;
+        }
+
+        /* Game Header */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--bg);
+        }
+
+        .score-board {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Scenario Area */
+        .scenario-box {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        /* Drag & Drop Area */
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Options (The Fragments) */
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            min-height: 100px;
+            padding: 20px;
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+        }
+
+        .draggable-item {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            max-width: 300px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+        }
+
+        /* Drop Zones (The Bowls) */
+        .drop-zones-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .drop-zone {
+            flex: 1;
+            min-height: 250px;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .drop-zone-header {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .drop-zone-desc {
+            font-size: 0.8em;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .drop-area {
+            width: 100%;
+            min-height: 150px;
+            border: 2px dashed rgba(0,0,0,0.2);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .drop-area.drag-over {
+            background-color: rgba(255,255,255,0.5);
+            border-color: rgba(0,0,0,0.5);
+        }
+
+        /* Specific Zones */
+        #zone-standard {
+            background-color: #f4f6f7;
+            border: 2px solid var(--glue);
+        }
+        #zone-standard .drop-zone-header { color: var(--glue); }
+
+        #zone-plus1 {
+            background-color: #fff9e6;
+            border: 2px solid var(--gold);
+        }
+        #zone-plus1 .drop-zone-header { color: #d4ac0d; }
+
+        /* Controls */
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-check {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-check:hover { background-color: #d35400; }
+        
+        .btn-check:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-next {
+            background-color: var(--primary);
+            color: white;
+            display: none;
+        }
+
+        .btn-next:hover { background-color: #1a252f; }
+
+        /* Feedback Modal */
+        .feedback-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            display: none;
+            padding: 40px;
+        }
+
+        .feedback-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .feedback-desc {
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .success-text { color: var(--success); }
+        .error-text { color: var(--danger); }
+
+        .kintsugi-bowl {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .item-in-zone {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>The Kintsugi Fix</h1>
+        <div class="subtitle">Service Recovery Challenge</div>
+
+        <div class="theory-box">
+            <strong>Teori Pengingat:</strong> Memperbaiki masalah saja hanya merekatkan pecahan (Impas). Untuk memulihkan kepercayaan secara permanen (Service Recovery Paradox), Anda butuh "Emas" yaitu prinsip +1 (Extra Mile) yang tidak diekspektasikan klien.
+        </div>
+
+        <div class="game-header">
+            <div class="level-indicator" id="level-display">Kasus: 1 / 3</div>
+            <div class="score-board">Trust Level: <span id="score-display">0</span>/300</div>
+        </div>
+
+        <div id="game-content">
+            <div class="scenario-box" id="scenario-text">
+                <!-- Skenario akan di-load via JS -->
+            </div>
+
+            <div class="game-area">
+                <div class="options-container" id="source-container">
+                    <!-- Item akan di-load via JS -->
+                </div>
+
+                <div class="drop-zones-container">
+                    <div class="drop-zone" id="zone-standard">
+                        <div class="drop-zone-header">Standar (Impas)</div>
+                        <div class="drop-zone-desc">Sekadar memperbaiki masalah sesuai SOP.</div>
+                        <div class="drop-area" data-type="standard"></div>
+                    </div>
+
+                    <div class="drop-zone" id="zone-plus1">
+                        <div class="drop-zone-header">The +1 (Emas)</div>
+                        <div class="drop-zone-desc">Inisiatif ekstra yang melampaui ekspektasi.</div>
+                        <div class="drop-area" data-type="plus1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-check" id="btn-check" disabled>Evaluasi Tindakan</button>
+                <button class="btn-next" id="btn-next">Kasus Selanjutnya</button>
+            </div>
+        </div>
+
+        <!-- Feedback Overlay -->
+        <div class="feedback-overlay" id="feedback-overlay">
+            <div class="kintsugi-bowl" id="feedback-icon">🥣</div>
+            <h2 class="feedback-title" id="feedback-title">Hasil</h2>
+            <div class="feedback-desc" id="feedback-desc">Deskripsi</div>
+            <button class="btn-next" id="btn-feedback-close" style="display:block;">Lanjut</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Data Game
+        const scenarios = [
+            {
+                text: "Tim Anda terlambat 1 hari mengirimkan laporan mingguan yang sangat penting bagi Klien karena masalah server internal.",
+                items: [
+                    { id: "s1_1", text: "Mengirimkan laporan yang tertunda segera setelah server pulih.", type: "standard" },
+                    { id: "s1_2", text: "Meminta maaf atas keterlambatan via email.", type: "standard" },
+                    { id: "s1_3", text: "Menyertakan ringkasan eksekutif tambahan 1 halaman agar Klien lebih cepat membaca karena waktu mereka sudah terbuang.", type: "plus1" },
+                    { id: "s1_4", text: "Menelpon langsung untuk menjelaskan, meminta maaf, dan berjanji akan mem-backup data via cloud mulai minggu depan.", type: "plus1" }
+                ]
+            },
+            {
+                text: "Seorang manajer divisi lain komplain karena anak buah Anda salah memasukkan data anggaran, menyebabkan presentasinya kepada Direksi terhambat.",
+                items: [
+                    { id: "s2_1", text: "Menugaskan anak buah Anda untuk merevisi data yang salah saat itu juga.", type: "standard" },
+                    { id: "s2_2", text: "Menyiapkan slide presentasi visual (grafik) dari data yang sudah direvisi agar manajer tersebut bisa langsung memakainya ke Direksi.", type: "plus1" },
+                    { id: "s2_3", text: "Mengirimkan email permohonan maaf resmi kepada manajer tersebut.", type: "standard" },
+                    { id: "s2_4", text: "Ikut hadir 15 menit sebelum presentasinya ke Direksi untuk standby jika ada pertanyaan teknis terkait data tersebut.", type: "plus1" }
+                ]
+            },
+            {
+                text: "Aplikasi yang dikembangkan tim Anda mengalami 'bug' saat klien sedang melakukan demo live ke pelanggannya.",
+                items: [
+                    { id: "s3_1", text: "Menemukan bug tersebut dan merilis patch perbaikan malam itu juga.", type: "standard" },
+                    { id: "s3_2", text: "Mengirim log error dan laporan RCA (Root Cause Analysis) standar ke klien.", type: "standard" },
+                    { id: "s3_3", text: "Membuat video pendek khusus (screencast) yang menunjukkan bug sudah diperbaiki, sehingga klien merasa aman untuk demo ulang.", type: "plus1" },
+                    { id: "s3_4", text: "Memberikan free kuota support teknis selama 1 bulan sebagai kompensasi rasa malu klien saat demo.", type: "plus1" }
+                ]
+            }
+        ];
+
+        let currentLevel = 0;
+        let score = 0;
+        const totalLevels = scenarios.length;
+
+        // DOM Elements
+        const scenarioText = document.getElementById('scenario-text');
+        const sourceContainer = document.getElementById('source-container');
+        const dropAreas = document.querySelectorAll('.drop-area');
+        const btnCheck = document.getElementById('btn-check');
+        const btnNext = document.getElementById('btn-next');
+        const levelDisplay = document.getElementById('level-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const feedbackOverlay = document.getElementById('feedback-overlay');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackDesc = document.getElementById('feedback-desc');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const btnFeedbackClose = document.getElementById('btn-feedback-close');
+
+        // Initialize Game
+        function loadLevel() {
+            if (currentLevel >= totalLevels) {
+                showFinalResult();
+                return;
+            }
+
+            const currentScenario = scenarios[currentLevel];
+            scenarioText.textContent = `Skenario ${currentLevel + 1}: ${currentScenario.text}`;
+            levelDisplay.textContent = `Kasus: ${currentLevel + 1} / ${totalLevels}`;
+            
+            // Clear containers
+            sourceContainer.innerHTML = '';
+            dropAreas.forEach(area => area.innerHTML = '');
+            
+            // Hide next button, show check button
+            btnNext.style.display = 'none';
+            btnCheck.style.display = 'inline-block';
+            btnCheck.disabled = true;
+
+            // Shuffle items
+            const shuffledItems = [...currentScenario.items].sort(() => Math.random() - 0.5);
+
+            shuffledItems.forEach(item => {
+                const el = document.createElement('div');
+                el.classList.add('draggable-item');
+                el.draggable = true;
+                el.textContent = item.text;
+                el.dataset.id = item.id;
+                el.dataset.type = item.type;
+                
+                // Drag Events
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragend', handleDragEnd);
+
+                sourceContainer.appendChild(el);
+            });
+        }
+
+        // Drag & Drop Logic
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            draggedItem = null;
+            checkAllItemsPlaced();
+        }
+
+        dropAreas.forEach(area => {
+            area.addEventListener('dragover', e => {
+                e.preventDefault();
+                area.classList.add('drag-over');
+            });
+
+            area.addEventListener('dragleave', e => {
+                area.classList.remove('drag-over');
+            });
+
+            area.addEventListener('drop', e => {
+                e.preventDefault();
+                area.classList.remove('drag-over');
+                if (draggedItem) {
+                    draggedItem.classList.add('item-in-zone');
+                    area.appendChild(draggedItem);
+                    checkAllItemsPlaced();
+                }
+            });
+        });
+
+        // Allow dragging back to source
+        sourceContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+        });
+        sourceContainer.addEventListener('drop', e => {
+            e.preventDefault();
+            if (draggedItem) {
+                draggedItem.classList.remove('item-in-zone');
+                sourceContainer.appendChild(draggedItem);
+                checkAllItemsPlaced();
+            }
+        });
+
+        function checkAllItemsPlaced() {
+            const itemsInSource = sourceContainer.querySelectorAll('.draggable-item').length;
+            if (itemsInSource === 0) {
+                btnCheck.disabled = false;
+            } else {
+                btnCheck.disabled = true;
+            }
+        }
+
+        // Evaluation Logic
+        btnCheck.addEventListener('click', evaluateLevel);
+
+        function evaluateLevel() {
+            let allCorrect = true;
+            const currentItems = scenarios[currentLevel].items;
+
+            dropAreas.forEach(area => {
+                const expectedType = area.dataset.type;
+                const itemsInArea = area.querySelectorAll('.draggable-item');
+                
+                itemsInArea.forEach(item => {
+                    if (item.dataset.type !== expectedType) {
+                        allCorrect = false;
+                        item.style.borderColor = 'var(--danger)';
+                        item.style.backgroundColor = '#fdeaea';
+                    } else {
+                        item.style.borderColor = 'var(--success)';
+                        item.style.backgroundColor = '#eafaf1';
+                    }
+                });
+            });
+
+            if (allCorrect) {
+                score += 100;
+                scoreDisplay.textContent = score;
+                showFeedback(true, "Luar Biasa! Mangkuk Berbalut Emas!", "Anda berhasil membedakan mana perbaikan standar dan mana sentuhan The +1. Kepercayaan Klien (Trust Level) tidak hanya pulih, tapi meningkat!");
+                btnCheck.style.display = 'none';
+                btnNext.style.display = 'inline-block';
+                
+                // Disable dragging after check
+                document.querySelectorAll('.draggable-item').forEach(item => item.draggable = false);
+            } else {
+                showFeedback(false, "Mangkuk Kembali Retak", "Ada tindakan yang kurang tepat. Ingat, 'meminta maaf' atau 'memperbaiki yang salah' itu adalah standar kewajiban (Impas), bukan Extra Mile (Emas). Silakan perbaiki penempatan Anda.");
+                // Reset styling after 2 seconds
+                setTimeout(() => {
+                    document.querySelectorAll('.draggable-item').forEach(item => {
+                        item.style.borderColor = 'var(--primary)';
+                        item.style.backgroundColor = 'white';
+                    });
+                }, 2000);
+            }
+        }
+
+        function showFeedback(isSuccess, title, desc) {
+            feedbackOverlay.classList.add('show');
+            feedbackTitle.textContent = title;
+            feedbackDesc.textContent = desc;
+            
+            if (isSuccess) {
+                feedbackTitle.className = 'feedback-title success-text';
+                feedbackIcon.textContent = '✨🥣✨'; // Kintsugi bowl
+                btnFeedbackClose.textContent = "Lanjut";
+            } else {
+                feedbackTitle.className = 'feedback-title error-text';
+                feedbackIcon.textContent = '💥🥣'; // Broken bowl
+                btnFeedbackClose.textContent = "Coba Lagi";
+            }
+        }
+
+        btnFeedbackClose.addEventListener('click', () => {
+            feedbackOverlay.classList.remove('show');
+            if (document.querySelector('.feedback-title').classList.contains('success-text')) {
+                // If it was successful, auto proceed to next level or finish
+                if(currentLevel < totalLevels - 1){
+                     // Do nothing, wait for user to click next
+                } else {
+                    showFinalResult();
+                }
+            }
+        });
+
+        btnNext.addEventListener('click', () => {
+            currentLevel++;
+            loadLevel();
+        });
+
+        function showFinalResult() {
+            document.getElementById('game-content').innerHTML = `
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 80px; margin-bottom:20px;">🏆</div>
+                    <h2 style="color: var(--primary);">Pelatihan Selesai!</h2>
+                    <p style="font-size: 1.2em;">Total Trust Level Anda: <strong>${score}</strong> / 300</p>
+                    <div class="theory-box" style="margin-top:20px;">
+                        <strong>Kesimpulan:</strong> Refleks Anda sebagai pemimpin sudah teruji. Ingatlah selalu di tempat kerja: selesaikan masalah intinya dengan cepat (SOP), lalu temukan SATU hal ekstra (The +1) untuk mengembalikan senyum mereka.
+                    </div>
+                    <button class="btn-check" onclick="location.reload()" style="margin-top:20px;">Main Ulang</button>
+                </div>
+            `;
+        }
+
+        // Start Game
+        loadLevel();
+
+    </script>
+</body>
+</html>

@@ -59,6 +59,7 @@
             margin-bottom: 25px;
             font-size: 0.9em;
             text-align: left;
+            line-height: 1.5;
         }
 
         /* Game Header */
@@ -85,6 +86,7 @@
             border-radius: 8px;
             margin-bottom: 30px;
             font-size: 1.1em;
+            line-height: 1.5;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
         }
 
@@ -101,7 +103,7 @@
             flex-wrap: wrap;
             gap: 15px;
             justify-content: center;
-            min-height: 100px;
+            min-height: 120px;
             padding: 20px;
             background: #fff;
             border: 2px dashed #ccc;
@@ -116,14 +118,16 @@
             cursor: grab;
             user-select: none;
             transition: transform 0.2s, box-shadow 0.2s;
-            max-width: 300px;
+            max-width: 320px;
             font-size: 0.95em;
+            line-height: 1.4;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: left;
         }
 
         .draggable-item:active {
             cursor: grabbing;
-            transform: scale(1.05);
+            transform: scale(1.02);
             box-shadow: 0 8px 12px rgba(0,0,0,0.1);
         }
 
@@ -160,11 +164,12 @@
             font-size: 0.8em;
             margin-bottom: 20px;
             color: #555;
+            min-height: 35px;
         }
 
         .drop-area {
             width: 100%;
-            min-height: 150px;
+            min-height: 200px;
             border: 2px dashed rgba(0,0,0,0.2);
             border-radius: 8px;
             display: flex;
@@ -269,6 +274,7 @@
             font-size: 1.1em;
             margin-bottom: 25px;
             color: #555;
+            line-height: 1.5;
         }
 
         .success-text { color: var(--success); }
@@ -281,10 +287,19 @@
         
         .item-in-zone {
             width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
             margin-bottom: 5px;
         }
 
+        @media (max-width: 768px) {
+            .drop-zones-container {
+                flex-direction: column;
+            }
+            .draggable-item {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -344,33 +359,33 @@
     </div>
 
     <script>
-        // Data Game
+        // Data Game dengan teks yang sudah di-balance panjang karakternya
         const scenarios = [
             {
                 text: "Tim Anda terlambat 1 hari mengirimkan laporan mingguan yang sangat penting bagi Klien karena masalah server internal.",
                 items: [
-                    { id: "s1_1", text: "Mengirimkan laporan yang tertunda segera setelah server pulih.", type: "standard" },
-                    { id: "s1_2", text: "Meminta maaf atas keterlambatan via email.", type: "standard" },
-                    { id: "s1_3", text: "Menyertakan ringkasan eksekutif tambahan 1 halaman agar Klien lebih cepat membaca karena waktu mereka sudah terbuang.", type: "plus1" },
-                    { id: "s1_4", text: "Menelpon langsung untuk menjelaskan, meminta maaf, dan berjanji akan mem-backup data via cloud mulai minggu depan.", type: "plus1" }
+                    { id: "s1_1", text: "Segera mengirimkan dokumen laporan yang tertunda sesaat setelah server internal berhasil dipulihkan sesuai dengan prosedur operasional standar.", type: "standard" },
+                    { id: "s1_2", text: "Mengirimkan email permohonan maaf secara resmi kepada klien yang menjelaskan bahwa keterlambatan ini murni disebabkan oleh gangguan server.", type: "standard" },
+                    { id: "s1_3", text: "Menyertakan ringkasan eksekutif tambahan 1 halaman agar Klien lebih cepat membaca karena waktu mereka sudah terbuang akibat delay.", type: "plus1" },
+                    { id: "s1_4", text: "Menelpon langsung untuk menjelaskan, meminta maaf, dan berjanji akan mem-backup data via cloud mulai minggu depan sebagai langkah preventif.", type: "plus1" }
                 ]
             },
             {
                 text: "Seorang manajer divisi lain komplain karena anak buah Anda salah memasukkan data anggaran, menyebabkan presentasinya kepada Direksi terhambat.",
                 items: [
-                    { id: "s2_1", text: "Menugaskan anak buah Anda untuk merevisi data yang salah saat itu juga.", type: "standard" },
-                    { id: "s2_2", text: "Menyiapkan slide presentasi visual (grafik) dari data yang sudah direvisi agar manajer tersebut bisa langsung memakainya ke Direksi.", type: "plus1" },
-                    { id: "s2_3", text: "Mengirimkan email permohonan maaf resmi kepada manajer tersebut.", type: "standard" },
-                    { id: "s2_4", text: "Ikut hadir 15 menit sebelum presentasinya ke Direksi untuk standby jika ada pertanyaan teknis terkait data tersebut.", type: "plus1" }
+                    { id: "s2_1", text: "Secara tegas menugaskan anggota tim Anda untuk segera merevisi keseluruhan data anggaran yang salah tersebut saat itu juga agar kembali akurat.", type: "standard" },
+                    { id: "s2_2", text: "Menyampaikan permohonan maaf secara formal kepada manajer tersebut dan memastikan bahwa kesalahan input data seperti ini tidak terulang lagi.", type: "standard" },
+                    { id: "s2_3", text: "Menyiapkan slide presentasi visual (grafik) dari data yang sudah direvisi agar manajer tersebut bisa langsung memakainya saat rapat Direksi.", type: "plus1" },
+                    { id: "s2_4", text: "Ikut hadir 15 menit sebelum presentasinya ke Direksi untuk standby secara langsung jika sewaktu-waktu ada pertanyaan teknis terkait data.", type: "plus1" }
                 ]
             },
             {
                 text: "Aplikasi yang dikembangkan tim Anda mengalami 'bug' saat klien sedang melakukan demo live ke pelanggannya.",
                 items: [
-                    { id: "s3_1", text: "Menemukan bug tersebut dan merilis patch perbaikan malam itu juga.", type: "standard" },
-                    { id: "s3_2", text: "Mengirim log error dan laporan RCA (Root Cause Analysis) standar ke klien.", type: "standard" },
-                    { id: "s3_3", text: "Membuat video pendek khusus (screencast) yang menunjukkan bug sudah diperbaiki, sehingga klien merasa aman untuk demo ulang.", type: "plus1" },
-                    { id: "s3_4", text: "Memberikan free kuota support teknis selama 1 bulan sebagai kompensasi rasa malu klien saat demo.", type: "plus1" }
+                    { id: "s3_1", text: "Mengerahkan tim teknis untuk segera mengidentifikasi sumber bug tersebut dan merilis patch perbaikan darurat pada malam hari itu juga.", type: "standard" },
+                    { id: "s3_2", text: "Menyusun dan mengirimkan dokumen log error beserta laporan Root Cause Analysis (RCA) komprehensif agar klien mengetahui penyebab pastinya.", type: "standard" },
+                    { id: "s3_3", text: "Membuat video panduan pendek (screencast) yang menunjukkan bug sudah diperbaiki, sehingga klien merasa jauh lebih aman untuk melakukan demo ulang.", type: "plus1" },
+                    { id: "s3_4", text: "Memberikan tambahan free kuota support teknis secara eksklusif selama 1 bulan sebagai bentuk kompensasi atas rasa malu klien saat demo.", type: "plus1" }
                 ]
             }
         ];
@@ -522,14 +537,14 @@
                 // Disable dragging after check
                 document.querySelectorAll('.draggable-item').forEach(item => item.draggable = false);
             } else {
-                showFeedback(false, "Mangkuk Kembali Retak", "Ada tindakan yang kurang tepat. Ingat, 'meminta maaf' atau 'memperbaiki yang salah' itu adalah standar kewajiban (Impas), bukan Extra Mile (Emas). Silakan perbaiki penempatan Anda.");
-                // Reset styling after 2 seconds
+                showFeedback(false, "Mangkuk Kembali Retak", "Ada tindakan yang kurang tepat. Ingat, memohon maaf secara resmi atau mengerjakan tugas kembali sesuai SOP hanyalah standar kewajiban (Impas), bukan Extra Mile (Emas). Silakan perbaiki penempatan Anda.");
+                // Reset styling after 3 seconds
                 setTimeout(() => {
                     document.querySelectorAll('.draggable-item').forEach(item => {
                         item.style.borderColor = 'var(--primary)';
                         item.style.backgroundColor = 'white';
                     });
-                }, 2000);
+                }, 3000);
             }
         }
 
